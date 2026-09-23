@@ -41,8 +41,10 @@ body.science #expression{font-size:clamp(16px,2.2vw,28px);line-height:1.4}body.s
 @media(max-width:600px),(max-height:500px) and (max-width:1000px){
  body .answer-label,body.science .answer-label{min-width:38px;padding:0;max-width:150px}
  body .answer-label strong,body.science .answer-label strong{font-size:15px;line-height:1.15;padding:3px 6px;border-width:1px;border-radius:5px;min-width:38px}
+ body.science .answer-label strong{font-size:13px}
  body .answer-label small{font-size:8px;letter-spacing:0;margin-top:2px}
  body #expression,body.science #expression{font-size:19px;line-height:1.2;margin:5px 0;padding:0 6px}
+ body.science #expression{font-size:15px}
  body #question-card{width:min(330px,68vw)}
  body .question-meta,body .question-bottom{font-size:9px;padding:4px 7px;gap:4px}
 }
