@@ -1,4 +1,4 @@
-/* Integer Strike v0.17.0. Local-only educational FPS, no third-party assets. */
+/* Integer Strike v0.18.0. Local-only educational FPS, no third-party assets. */
 (()=>{'use strict';
 const $=id=>document.getElementById(id),canvas=$('world');let renderer;
 try{renderer=new ArenaRenderer.Renderer(canvas);}catch(e){$('notice').textContent=e.message;$('start').disabled=true;return;}
@@ -132,8 +132,29 @@ function enemyStep(dt){if(transitionAt||!session||session.state!=='playing')retu
 }
 const dynamic=[];function box(x,y,z,w,h,d,c){ArenaRenderer.cube(dynamic,{x,y,z,w,h,d},c);}
 function renderEnemies(){const card=$('question-card').getBoundingClientRect(),vitals=controls.touch&&innerWidth>600&&innerHeight<=450?$('vitals').getBoundingClientRect():null;for(const e of enemies){if(!e.alive)continue;const vertexStart=dynamic.length;const stride=Math.sin(sim*5+e.phase)*.1,metal=e.wrong?[.43,.47,.45]:[.52,.61,.59],armor=e.wrong?[.50,.36,.30]:(e.role||Core.enemyRoles[0]).color,light=e.warningUntil?[1,.30,.15]:[.76,.93,.92];
- box(e.x-.22,e.y,e.z+stride,.26,.72,.32,metal);box(e.x+.22,e.y,e.z-stride,.26,.72,.32,metal);box(e.x,e.y+.72,e.z,.75,.77,.5,armor);box(e.x,e.y+1.53,e.z,.51,.47,.47,metal);box(e.x,e.y+1.72,e.z+.25,.39,.11,.025,light);box(e.x-.52,e.y+.77,e.z,.22,.64,.25,metal);box(e.x+.52,e.y+.84,e.z+.12,.22,.52,.26,metal);box(e.x+.5,e.y+1.05,e.z+.4,.18,.18,.6,[.22,.33,.34]);box(e.x,e.y+1.13,e.z+.26,.30,.20,.035,[.18,.32,.35]);
- if(sim<(e.muzzleUntil||0))box(e.x+.5,e.y+1.08,e.z+.76,.16,.16,.16,[1,.54,.23]);
+ const skin=[[.69,.46,.31],[.86,.65,.45],[.46,.30,.21],[.75,.55,.4]][e.id%4],cloth=armor.map(v=>v*.65),boots=[.13,.15,.13],vest=[.24,.28,.18];
+ // Human proportions: separate boots, calves, thighs, waist, neck and face.
+ for(const side of [-1,1]){const z=e.z+side*stride;
+  box(e.x+side*.15,e.y,z+.05,.22,.16,.36,boots);
+  box(e.x+side*.15,e.y+.16,z,.19,.33,.22,cloth);
+  box(e.x+side*.15,e.y+.49,e.z+side*stride*.5,.24,.35,.27,cloth);
+  box(e.x+side*.15,e.y+.43,z+.12,.16,.12,.05,vest);
+ }
+ box(e.x,e.y+.82,e.z,.49,.13,.30,boots);
+ box(e.x,e.y+.95,e.z,.53,.48,.32,cloth);
+ box(e.x,e.y+.99,e.z+.18,.43,.36,.11,vest);
+ for(const side of [-1,1]){box(e.x+side*.13,e.y+1.04,e.z+.25,.15,.18,.065,armor);box(e.x+side*.34,e.y+1.10,e.z,.18,.31,.23,cloth);box(e.x+side*.34,e.y+1.01,e.z+.17,.16,.15,.32,cloth);box(e.x+side*.27,e.y+1.01,e.z+.35,.13,.13,.14,skin);}
+ box(e.x,e.y+1.43,e.z,.16,.12,.17,skin);
+ box(e.x,e.y+1.53,e.z,.30,.29,.28,skin);
+ box(e.x,e.y+1.77,e.z-.02,.38,.15,.34,vest);
+ box(e.x,e.y+1.75,e.z+.17,.39,.055,.10,vest);
+ box(e.x,e.y+1.67,e.z+.145,.22,.05,.025,[.10,.12,.10]);
+ box(e.x,e.y+1.6,e.z+.16,.065,.07,.05,skin);
+ box(e.x+.22,e.y+1.07,e.z+.43,.13,.12,.50,boots);
+ box(e.x+.22,e.y+.95,e.z+.35,.09,.17,.11,boots);
+ box(e.x+.22,e.y+1.10,e.z+.76,.055,.055,.24,boots);
+ if(e.warningUntil)box(e.x+.22,e.y+1.11,e.z+.89,.07,.07,.03,[1,.25,.1]);
+ if(sim<(e.muzzleUntil||0))box(e.x+.22,e.y+1.08,e.z+.94,.16,.16,.16,[1,.54,.23]);
  const yaw=Math.atan2(player.x-e.x,player.z-e.z),cs=Math.cos(yaw),sn=Math.sin(yaw);for(let j=vertexStart;j<dynamic.length;j+=6){const x=dynamic[j]-e.x,z=dynamic[j+2]-e.z;dynamic[j]=e.x+x*cs+z*sn;dynamic[j+2]=e.z-x*sn+z*cs;}
  const p=renderer.project(e.x,e.y+2.32,e.z);const visible=p&&p.x>-40&&p.x<innerWidth+40&&p.y>70&&p.y<innerHeight-40&&ArenaWorld.visible(eye(),{x:e.x,y:e.y+1.8,z:e.z},boxes);e.label.style.display=visible?'block':'none';if(visible){const belowQuestion=card.height>0&&p.x>card.left-48&&p.x<card.right+48;let labelY=belowQuestion?Math.max(p.y,card.bottom+72):p.y;if(vitals&&p.x>vitals.left-48&&p.x<vitals.right+48&&labelY>vitals.top&&labelY-72<vitals.bottom)labelY=vitals.bottom+72;e.label.style.left=p.x+'px';e.label.style.top=labelY+'px';e.label.classList.toggle('wrong',e.wrong);e.label.classList.toggle('warning',!!e.warningUntil);}
  }}
@@ -177,7 +198,7 @@ $('bank-select').onchange=()=>{archivePartialRun();controls.pause();bankName=$('
 updateLevelSelect();renderer.camera(player);requestAnimationFrame(frame);
 canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();controls.pause();$('notice').textContent='顯示卡連線中斷，請重新整理遊戲。進度已完成的關卡仍會保留。';$('start').disabled=true;});
 // Read-only diagnostics for QA; no state mutation or answer shortcuts.
-window.arenaDiagnostics=()=>({version:'0.17.0',bank:bankName,focusedPractice,reviewLevels:[...reviewLevels],drawCount,terrain:world.id,triangles:renderer.triangles,fps:measuredFPS,webgl:renderer.gl.getError(),position:{...player},active:controls.active,touch:controls.touch,input:controls.axes(),fire:controls.fire,thinking,enemySpeed:ArenaWorld.enemySpeed(level),level,reviewRound,gun,ammo:ammo[gun],hp:session?.hp,shield:session?.shield,done:session?.done,goal:session?.goal,state:session?.state,question:session?.question,sim,safeUntil,bullets:bullets.length,enemies:enemies.map(e=>({id:e.id,role:e.role?.id,x:e.x,y:e.y,z:e.z,answer:e.answer,alive:e.alive,warning:!!e.warningUntil,yaw:e.yaw,shotsFired:e.shotsFired,screen:renderer.project(e.x,e.y+1.1,e.z)})),report:session?.report()});
+window.arenaDiagnostics=()=>({version:'0.18.0',bank:bankName,focusedPractice,reviewLevels:[...reviewLevels],drawCount,terrain:world.id,triangles:renderer.triangles,fps:measuredFPS,webgl:renderer.gl.getError(),position:{...player},active:controls.active,touch:controls.touch,input:controls.axes(),fire:controls.fire,thinking,enemySpeed:ArenaWorld.enemySpeed(level),level,reviewRound,gun,ammo:ammo[gun],hp:session?.hp,shield:session?.shield,done:session?.done,goal:session?.goal,state:session?.state,question:session?.question,sim,safeUntil,bullets:bullets.length,enemies:enemies.map(e=>({id:e.id,role:e.role?.id,x:e.x,y:e.y,z:e.z,answer:e.answer,alive:e.alive,warning:!!e.warningUntil,yaw:e.yaw,shotsFired:e.shotsFired,screen:renderer.project(e.x,e.y+1.1,e.z)})),report:session?.report()});
 })();
 
 
