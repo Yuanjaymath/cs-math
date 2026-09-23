@@ -70,10 +70,25 @@ function navigation(boxes){
  function path(a,b){const start=nearest(a),end=nearest(b);if(!start||!end)return [];const prev=new Int32Array(nodes.length).fill(-1),queue=[start.index];prev[start.index]=start.index;for(let i=0;i<queue.length&&prev[end.index]<0;i++)for(const j of nodes[queue[i]].edges)if(prev[j]<0){prev[j]=queue[i];queue.push(j);}if(prev[end.index]<0)return [];const route=[];for(let i=end.index;i!==start.index;i=prev[i])route.push(nodes[i]);route.push(start);return route.reverse();}
  return {nodes,path};
 }
-function labelLayout(items,width,height,avoid=[]){const placed=[];for(const item of [...items].sort((a,b)=>a.id-b.id)){const w=Math.min(item.w,width-16),h=item.h;let best=null,score=Infinity;
- for(let y=80;y<=height-h-12;y+=12)for(let x=8;x<=width-w-8;x+=16){const r={x,y,w,h};if([...avoid,...placed].some(a=>r.x<a.x+a.w+6&&r.x+r.w+6>a.x&&r.y<a.y+a.h+6&&r.y+r.h+6>a.y))continue;const d=(x+w/2-item.x)**2+(y+h-item.y)**2;if(d<score){best=r;score=d;}}
- if(best)placed.push({...best,id:item.id});
- }return placed;}
+function labelLayout(items,width,height,avoid=[],previous=[]){
+ const placed=[],overlap=(a,b,gap=6)=>a.x<b.x+b.w+gap&&a.x+a.w+gap>b.x&&a.y<b.y+b.h+gap&&a.y+a.h+gap>b.y;
+ const homes=items.map(i=>({id:i.id,x:i.x-Math.min(i.w,width-16)/2,y:i.y-i.h,w:Math.min(i.w,width-16),h:i.h}));
+ for(const item of [...items].sort((a,b)=>a.id-b.id)){
+  const home=homes.find(r=>r.id===item.id),{w,h}=home,old=previous.find(r=>r.id===item.id),obstacles=[...avoid,...placed];
+  const clamp=r=>({...r,x:Math.max(8,Math.min(width-w-8,r.x)),y:Math.max(30,Math.min(height-h-8,r.y))});
+  // Keep the head-relative offset until there is ample room to return home.
+  const crowded=[...avoid,...homes.filter(r=>r.id!==item.id)].some(r=>overlap(home,r,14));
+  let best=clamp({...home,x:home.x+(old&&crowded?old.dx||0:0),y:home.y+(old&&crowded?old.dy||0:0)});
+  if(obstacles.some(r=>overlap(best,r))){
+   const xs=[best.x,home.x,8,width-w-8],ys=[best.y,home.y,30,height-h-8];
+   for(const r of obstacles){xs.push(r.x-w-8,r.x+r.w+8);ys.push(r.y-h-8,r.y+r.h+8);}
+   let score=Infinity,candidate=null;
+   for(const x of xs)for(const y of ys){const r=clamp({x,y,w,h});if(obstacles.some(o=>overlap(r,o)))continue;const d=(r.x-best.x)**2+(r.y-best.y)**2;if(d<score){score=d;candidate=r;}}
+   if(candidate)best=candidate;
+  }
+  placed.push({...best,id:item.id,dx:best.x-home.x,dy:best.y-home.y});
+ }return placed;
+}
 root.ArenaWorld={maps,create,step,visible,spawnPoints,canMoveActor,enemySpeed,navigation,labelLayout};
 })(globalThis);
 

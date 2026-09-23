@@ -36,3 +36,13 @@ body.science #expression{font-size:clamp(16px,2.2vw,28px);line-height:1.4}body.s
 
 
 #creator-credit{position:fixed;right:10px;top:3px;z-index:1000;padding:3px 8px;border-radius:5px;background:#102229e8;color:#eff6e8;font-size:12px;pointer-events:none}#creator-credit small{font-size:10px;color:#d4ec94;margin-left:6px}header{top:32px}.answer-connector{position:fixed;height:2px;background:#ffd38bdd;transform-origin:0 50%;pointer-events:none;z-index:3}.answer-label{z-index:4}body.paused .answer-connector{display:none!important}@media(max-width:600px){#creator-credit{font-size:10px;right:5px;top:2px}#menu{padding-top:25px}}
+
+/* v0.17.0: compact phone combat HUD, portrait and landscape. */
+@media(max-width:600px),(max-height:500px) and (max-width:1000px){
+ body .answer-label,body.science .answer-label{min-width:38px;padding:0;max-width:150px}
+ body .answer-label strong,body.science .answer-label strong{font-size:15px;line-height:1.15;padding:3px 6px;border-width:1px;border-radius:5px;min-width:38px}
+ body .answer-label small{font-size:8px;letter-spacing:0;margin-top:2px}
+ body #expression,body.science #expression{font-size:19px;line-height:1.2;margin:5px 0;padding:0 6px}
+ body #question-card{width:min(330px,68vw)}
+ body .question-meta,body .question-bottom{font-size:9px;padding:4px 7px;gap:4px}
+}
